@@ -1,8 +1,6 @@
-from celery_worker import celery_app
-import time
+from application import celery_app
+
 
 @celery_app.task
 def test_job():
-    print('test-job-start')
-    time.sleep(5)
-    print('test-job-end')
+    print("test_job")

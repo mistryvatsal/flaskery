@@ -1,28 +1,16 @@
-from application.jobs import test_job
-from application import jobs
 from flask import Flask
 from flask_restx import Api
 import os
+
 from celery import Celery
 from config import Config
 
-
-def make_celery(app=None):
-    app = app or create_app()
-    celery_app = Celery(
-        app.import_name,
+celery_app = Celery(
+        __name__,
         broker=Config.CELERY_BROKER_URL,
         backend=Config.RESULT_BACKEND
     )
-    celery_app.conf.update(app.config)
 
-    class ContextTask(celery_app.Task):
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return self.run(*args, **kwargs)
-
-    celery_app.Task = ContextTask
-    return celery_app
 
 # Application Factory 
 def create_app():
@@ -38,9 +26,8 @@ def create_app():
     # Initialize flask extension objects
     # initialize_extensions(app)
 
-    # Create Celery app
-    celery_app = make_celery(app)
-
+    # Configure Celery app
+    celery_app.conf.update(app.config)
     # Configure logging
     # configure_logging(app)
 
